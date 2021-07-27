@@ -29,7 +29,7 @@
 
 # 开发过程中的启动
 - 命令行 uvicorn app.main:app
-- 可以查看api localhost:4000/docs
+- 可以查看api localhost:8000/docs
 
 # 部署过程中，使用dapr+容器
 
