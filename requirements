@@ -1,0 +1,9 @@
+sqlalchemy
+pydantic[dotenv,email]
+
+python-jose
+passlib
+psycopg2
+emails
+python-multipart
+celery
