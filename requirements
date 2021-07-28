@@ -8,5 +8,6 @@ emails
 python-multipart
 celery
 
-uvicorn
+uvicorn[standard]
 fastapi
+aiohttp
