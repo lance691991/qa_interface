@@ -31,6 +31,12 @@
 - 命令行 uvicorn app.main:app
 - 可以查看api localhost:8000/docs
 
+## 定时和周期性任务管理
+- 准备工作：允许rabbitmq或者redis
+- 修改app.core.celery_app中与redis或者rabbitmq连接的内容
+- 采用celery
+- 在项目目录中执行start-worker 即可
+
 ## 部署过程中，使用dapr+容器
 
 ## OPA服务授权
