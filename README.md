@@ -1,6 +1,6 @@
 # fastapi-microservice-template
 
-# 结构
+## 结构
 - README.md  说明
 - alembic.ini 数据库迁移alembic包的配置
 - requirements 依赖
@@ -27,9 +27,24 @@
     - utils.py 工具类，比如发送email
     - worker.py celery相关的worker
 
-# 开发过程中的启动
+## 开发过程中的启动
 - 命令行 uvicorn app.main:app
 - 可以查看api localhost:8000/docs
 
-# 部署过程中，使用dapr+容器
+## 部署过程中，使用dapr+容器
 
+## OPA服务授权
+
+- 代码示例
+```python
+from app.core.security import ServiceAuthenticator
+
+# 初始化认证器
+authenticator = ServiceAuthenticator(service_name='test')
+
+@app.post('/hello/hi')
+async def hi(req: Request):
+    # 传入请求进行验证
+    await authenticator.auth(req=req)
+    return
+```
