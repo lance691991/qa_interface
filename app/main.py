@@ -32,8 +32,9 @@ html = """
         <title>Chat</title>
     </head>
     <body>
-        <h1>WebSocket Chat</h1>
-        <h2>Your ID: <span id="ws-id"></span></h2>
+        <h1>WebSocket 测试代码</h1>
+        <h2>这段代码只是为了方便起见，使用了server端生成html前端代码。在实际应用中，前端代码可以参照如下代码编写</h2>
+        <h3>Your ID: <span id="ws-id"></span></h3>
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
             <button>Send</button>
