@@ -7,3 +7,6 @@ psycopg2
 emails
 python-multipart
 celery
+
+uvicorn
+fastapi
