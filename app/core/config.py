@@ -51,6 +51,24 @@ class Settings(BaseSettings):
             path=f"/{values.get('POSTGRES_DB') or ''}",
         )
 
+    ES_SERVER: str
+    ES_USER: str
+    ES_PASSWORD: str
+    ES_PROTOCOL: str
+    ES_PORT: str
+    ES_URI: Optional[List[str]] = None
+
+    @validator("ES_URI", pre=True)
+    def assemble_es_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        if isinstance(v, str):
+            return v
+        user = values.get("ES_USER")
+        password = values.get("ES_PASSWORD")
+        host = values.get("ES_SERVER")
+        port = values.get("ES_PORT")
+        protocol = values.get("ES_PROTOCOL")
+        return [protocol + "://" + user + ":" + password + "@" + host + ":" + port]
+
     SMTP_TLS: bool = True
     SMTP_PORT: Optional[int] = None
     SMTP_HOST: Optional[str] = None

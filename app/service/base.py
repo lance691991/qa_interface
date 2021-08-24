@@ -63,3 +63,6 @@ class ServiceBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.delete(obj)
         db.commit()
         return obj
+
+class LogServiceBase(Generic[CreateSchemaType, UpdateSchemaType]):
+    pass
