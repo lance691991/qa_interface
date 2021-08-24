@@ -11,3 +11,5 @@ celery
 uvicorn[standard]
 fastapi
 aiohttp
+
+alembic
