@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[str] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -62,12 +62,10 @@ class Settings(BaseSettings):
     def assemble_es_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        user = values.get("ES_USER")
-        password = values.get("ES_PASSWORD")
         host = values.get("ES_SERVER")
         port = values.get("ES_PORT")
         protocol = values.get("ES_PROTOCOL")
-        return [protocol + "://" + user + ":" + password + "@" + host + ":" + port]
+        return [protocol + "://" + host + ":" + port]
 
     SMTP_TLS: bool = True
     SMTP_PORT: Optional[int] = None

@@ -22,9 +22,11 @@ def write_data():
     #     }
     #     print(cur_data)
     cur_data = {
-        "message": "<5>time:2020-04-21 07:14:27;danger_degree:5;breaking_sighn:0;event:[50575]向日葵远程控制软件连接服务器;src_addr:10.30.3.178;src_port:33668;dst_addr:47.111.183.245;dst_port:443;user:;smt_user:;proto:SSL"
+        "message": "<5>time:2020-05-10 12:30:34;danger_degree:1;breaking_sighn:1;event:[50083]RDP远程桌面服务终端服务用户登录;src_addr:10.10.253.14;src_port:52563;dst_addr:10.50.10.240;dst_port:3389;user:;smt_user:;proto:T_120"
     }
-    producer.send(topic, value=cur_data)
+    datas = [cur_data for i in range(5)]
+    print(datas)
+    producer.send(topic, value=datas)
 
 if __name__ == '__main__':
     write_data()

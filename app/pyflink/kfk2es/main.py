@@ -1,6 +1,5 @@
 import os
-from pyflink.table import StreamTableEnvironment, EnvironmentSettings, DataTypes
-from pyflink.common import Row
+from pyflink.table import StreamTableEnvironment, EnvironmentSettings, DataTypes, Row
 # from pyflink.table import TableFunction
 # from pyflink.table.udf import udtf
 from pyflink.table import ScalarFunction
@@ -9,8 +8,6 @@ from pyflink.datastream import StreamExecutionEnvironment
 from parsers import RegexBaseParser
 from pyflink.table.expressions import col
 import json
-
-cols = [str(i) + "c" for i in range(32)]
 
 env = StreamExecutionEnvironment.get_execution_environment()
 env_settings = EnvironmentSettings.new_instance().in_streaming_mode().use_blink_planner().build()
@@ -65,15 +62,16 @@ class CustomRegexParse(ScalarFunction):
 
         self.unpacker = unpack_parsed_dict
 
+        # from datetime import datetime
+        # self.time_regex = datetime.strptime
+
     def eval(self, m_row):
         message = m_row[0]
         result = self.parser.parse(message)
         result = self.unpacker(result)
-        if result[-1]:
-            result[-1] = result[-1].strftime("%m/%d/%Y, %H:%M:%S")
-        # raise NameError(str(result))
+        # if result[-1]:
+        #     result[-1] = self.time_regex(result[-1], '%Y-%m-%dT%H:%M:%S.%f')
         return result
-        # return result
 custom_regex_parse = udf(CustomRegexParse(), result_type=DataTypes.ROW([DataTypes.FIELD("src_ip", DataTypes.STRING()),
                                                                         DataTypes.FIELD("src_ip_info_country", DataTypes.STRING()),
                                                                         DataTypes.FIELD("src_ip_info_province", DataTypes.STRING()),
@@ -106,39 +104,6 @@ custom_regex_parse = udf(CustomRegexParse(), result_type=DataTypes.ROW([DataType
                                                                         DataTypes.FIELD("event_name", DataTypes.STRING()),
                                                                         DataTypes.FIELD("event_content", DataTypes.STRING()),
                                                                         DataTypes.FIELD("stat_time", DataTypes.STRING())]))
-
-# custom_regex_parse = udtf(CustomRegexParse(), result_types=[DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.FLOAT(),
-#                                                                         DataTypes.FLOAT(),
-#                                                                         DataTypes.TINYINT(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.FLOAT(),
-#                                                                         DataTypes.FLOAT(),
-#                                                                         DataTypes.TINYINT(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.TINYINT(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING(),
-#                                                                         DataTypes.STRING()])
 
 t_env.execute_sql(f"""
     CREATE TABLE source (
@@ -189,132 +154,14 @@ CREATE TABLE sink (src_ip STRING,
     event_content STRING,
     stat_time STRING
 ) with (
-    'connector' = 'kafka',
-    'topic' = 'sink',
-    'properties.bootstrap.servers' = '127.0.0.1:9092',
-    'scan.startup.mode' = 'latest-offset',
-    'json.fail-on-missing-field' = 'false',
-    'json.ignore-parse-errors' = 'true',
+    'connector' = 'elasticsearch-7',
+    'hosts' = 'http://127.0.0.1:9200',
+    'index' = 'warning_logs',
     'format' = 'json'
 )
 """)
 
 # table API
 source = t_env.from_path("source").select(col("message"))
-# source.to_pandas()
-# source.print_schema()
 inter = source.map(custom_regex_parse)
-# inter = inter.select(col('_c0'))
-inter.print_schema()
 inter.execute_insert("sink")
-# source.execute_insert("sink")
-# inter_table = source.select(custom_regex_parse(source.message))
-# inter_table = inter_table.select(col("_c0"))
-# inter_table.print_schema()
-# inter_table.execute_insert("sink").wait()
-
-# sql API
-# t_env.sql_query("""
-# SELECT
-#     custom_regex_parse(message) AS
-#     src_ip,
-#     src_ip_info_country,
-#     src_ip_info_province,
-#     src_ip_info_city,
-#     src_ip_info_distinct,
-#     src_ip_info_street,
-#     src_ip_info_postal_code,
-#     src_ip_info_isp,
-#     src_ip_info_location_lat,
-#     src_ip_info_location_lon,
-#     src_port,
-#     dst_ip,
-#     dst_ip_info_country,
-#     dst_ip_info_province,
-#     dst_ip_info_city,
-#     dst_ip_info_distinct,
-#     dst_ip_info_street,
-#     dst_ip_info_postal_code,
-#     dst_ip_info_isp,
-#     dst_ip_info_location_lat,
-#     dst_ip_info_location_lon,
-#     dst_port,
-#     transport_protocol,
-#     application_protocol,
-#     url,
-#     event_level,
-#     event_category,
-#     event_type,
-#     event_id,
-#     event_name,
-#     event_content,
-#     stat_time
-# FROM
-#     source
-# """).insert_into("sink")
-# t_env.execute('test')
-
-# t_env.from_path('source') \
-#     .select('message, custom_regex_parse(message) AS src_ip,'
-#             'src_ip_info_country,'
-#             'src_ip_info_province,'
-#             'src_ip_info_city,'
-#             'src_ip_info_distinct,'
-#             'src_ip_info_street,'
-#             'src_ip_info_postal_code,'
-#             'src_ip_info_isp,'
-#             'src_ip_info_location_lat,'
-#             'src_ip_info_location_lon,'
-#             'src_port,'
-#             'dst_ip,'
-#             'dst_ip_info_country,'
-#             'dst_ip_info_province,'
-#             'dst_ip_info_city,'
-#             'dst_ip_info_distinct,'
-#             'dst_ip_info_street,'
-#             'dst_ip_info_postal_code,'
-#             'dst_ip_info_isp,'
-#             'dst_ip_info_location_lat,'
-#             'dst_ip_info_location_lon,'
-#             'dst_port,'
-#             'transport_protocol,'
-#             'application_protocol,'
-#             'url,'
-#             'event_level,'
-#             'event_category,'
-#             'event_type,'
-#             'event_id,'
-#             'event_name,'
-#             'event_content,'
-#             'stat_time').select('src_ip,'
-#                                 'src_ip_info_country,'
-#                                 'src_ip_info_province,'
-#                                 'src_ip_info_city,'
-#                                 'src_ip_info_distinct,'
-#                                 'src_ip_info_street,'
-#                                 'src_ip_info_postal_code,'
-#                                 'src_ip_info_isp,'
-#                                 'src_ip_info_location_lat,'
-#                                 'src_ip_info_location_lon,'
-#                                 'src_port,'
-#                                 'dst_ip,'
-#                                 'dst_ip_info_country,'
-#                                 'dst_ip_info_province,'
-#                                 'dst_ip_info_city,'
-#                                 'dst_ip_info_distinct,'
-#                                 'dst_ip_info_street,'
-#                                 'dst_ip_info_postal_code,'
-#                                 'dst_ip_info_isp,'
-#                                 'dst_ip_info_location_lat,'
-#                                 'dst_ip_info_location_lon,'
-#                                 'dst_port,'
-#                                 'transport_protocol,'
-#                                 'application_protocol,'
-#                                 'url,'
-#                                 'event_level,'
-#                                 'event_category,'
-#                                 'event_type,'
-#                                 'event_id,'
-#                                 'event_name,'
-#                                 'event_content,'
-#                                 'stat_time').execute_insert('sink')

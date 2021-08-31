@@ -207,7 +207,7 @@ class RegexBaseParser(BaseParser, metaclass=abc.ABCMeta):
     def parse_message(self, message: str) -> dict:
         grok = pygrok.Grok(self.grok_pattern())
         result = grok.match(message)
-
+        result["stat_time"] = datetime.datetime.now()
         # 解析失败
         if result is None:
             raise ValueError
@@ -345,7 +345,7 @@ if __name__ == '__main__':
 
 
     result = NginxRegexJsonParser().parse("<5>time:2020-04-21 07:14:27;danger_degree:2;breaking_sighn:0;event:[50575]向日葵远程控制软件连接服务器;src_addr:10.30.3.178;src_port:33668;dst_addr:47.111.183.245;dst_port:443;user:;smt_user:;proto:SSL")
-    print(result)
+    print("~~~~", result)
     print(result.dict().get('message_info', {}))
     print(list(json.loads(result.json(ensure_ascii=False)).get('message_info', {}).values()))
     print(json.loads(result.json(ensure_ascii=False)).get("message_info", {}))
@@ -378,3 +378,4 @@ if __name__ == '__main__':
         return result_list
 
     print(unpack_parsed_dict(result))
+    print(type(unpack_parsed_dict(result)[-1]))
