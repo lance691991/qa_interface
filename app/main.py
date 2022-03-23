@@ -5,8 +5,6 @@ from fastapi.responses import HTMLResponse
 
 from starlette.middleware.cors import CORSMiddleware
 
-from elasticsearch_dsl import connections
-
 from app.api.v1.api import api_router
 from app.core.config import settings
 

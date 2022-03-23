@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app import service, models, schemas
 from app.core import security
 from app.core.config import settings
-from app.db.session import SessionLocal, SessionES
+from app.db.session import SessionLocal
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -22,14 +22,6 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
-
-def get_es_db() -> Generator:
-    try:
-        db = SessionES
-        yield db
-    finally:
-        # db.transport.close()
-        pass
 
 # def get_postgres_db
 
