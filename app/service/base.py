@@ -7,9 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.db.base_class import Base
 
-from elasticsearch_dsl import Q, Search
-from elasticsearch import Elasticsearch
-
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
@@ -66,12 +63,3 @@ class ServiceBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.delete(obj)
         db.commit()
         return obj
-
-class WarningServiceBase(Generic[CreateSchemaType, UpdateSchemaType]):
-
-    def get(self, db: Elasticsearch, index: str):
-        s = Search(using=db, index=index)
-        return s
-
-    def add(self, db: Elasticsearch, index: str, data):
-        db.index(index=index, body=data)
